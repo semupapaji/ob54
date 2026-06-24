@@ -1,11 +1,6 @@
-requests
-pyrogram
-tgcrypto
-python-dotenv
-Flask
-flask-cors
-httpx
-google-protobuf
-pycryptodome
-gunicorn
-asyncio
+Flask==2.3.3
+Flask-Cors==4.0.0
+httpx==0.27.0
+protobuf==4.25.3
+pycryptodome==3.20.0
+gunicorn==21.2.0
