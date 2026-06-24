@@ -7,9 +7,15 @@ import json
 from collections import defaultdict
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import FreeFire_pb2, main_pb2, AccountPersonalShow_pb2
-from google.protobuf import json_format
-from Crypto.Cipher import AES
+
+# Import protobuf modules
+try:
+    import FreeFire_pb2, main_pb2, AccountPersonalShow_pb2
+    from google.protobuf import json_format
+    from Crypto.Cipher import AES
+except ImportError as e:
+    print(f"⚠️ Import error: {e}")
+    # For Vercel, we need to ensure these are installed
 
 # ============ CONFIGURATION ============
 G = bytes([89, 103, 38, 116, 99, 37, 68, 69, 117, 104, 54, 37, 90, 99, 94, 56])
@@ -231,6 +237,25 @@ def clear_cache():
     UID_MEMORY.clear()
     return jsonify({'message': 'Cache cleared'})
 
+# ============ VERCEL HANDLER ============
+# This is the entry point for Vercel
+async def init_tokens():
+    try:
+        await GaY()
+        print("✅ Tokens initialized")
+    except Exception as e:
+        print(f"⚠️ Token init error: {e}")
+
+# For Vercel serverless environment
+try:
+    # Try to initialize tokens for Vercel
+    asyncio.run(init_tokens())
+except RuntimeError:
+    # If already running in event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(init_tokens())
+
 # ============ MAIN ============
 if __name__ == '__main__':
     print("🚀 Starting FreeFire API Server (OB54)")
@@ -250,5 +275,5 @@ if __name__ == '__main__':
         await GaY()
         asyncio.create_task(Gsu())
     
-    # Run the server
+    # For local development
     app.run(host='0.0.0.0', port=8080, debug=False, threaded=True)
